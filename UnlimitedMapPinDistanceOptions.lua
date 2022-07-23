@@ -84,11 +84,17 @@ function UMPD_Init()
     title:SetPoint("TOPLEFT", 16, -16)
     title:SetText(_UMPD.addonName)
 
+    -- Version
+    local version = UMPDO:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+    version:SetPoint("TOPRIGHT", -16, -16)
+    version:SetText("v".._UMPD.version)
+
     -- Headers
     createHeader(UMPDO, -59, "Pin Distances")
-    createHeader(UMPDO, -145, "Pin Alphas")
-    createHeader(UMPDO, -231, "Miscellaneous Options")
-    createHeader(UMPDO, -532, "Additional Notes")
+    createHeader(UMPDO, -155, "Pin Alphas")
+    createHeader(UMPDO, -241, "Miscellaneous Options")
+    -- createHeader(UMPDO, -453, "Additional Notes")
+    createHeader(UMPDO, -532, "Credits")
 
     -- Sliders
     local slMinDist = createSlider(UMPDO,"minDist",UMPD.minDistance,0,10000,1,"Min Pin Distance") 
@@ -107,24 +113,24 @@ function UMPD_Init()
         UMPD.maxDistance = value
     end)
     local slAlphaShort = createSlider(UMPDO,"shortAlpha",UMPD.pinAlphaShort,0,100,1,"Alpha below fade distance")
-    slAlphaShort:SetPoint("TOPLEFT", 16, -182)
+    slAlphaShort:SetPoint("TOPLEFT", 16, -192)
     slAlphaShort:HookScript("OnValueChanged", function(self,value)
         UMPD.pinAlphaShort = value
     end)
     local slAlphaLong = createSlider(UMPDO,"longAlpha",UMPD.pinAlphaLong,0,100,1,"Alpha above fade distance")
-    slAlphaLong:SetPoint("TOP", 0, -182)
+    slAlphaLong:SetPoint("TOP", 0, -192)
     slAlphaLong:HookScript("OnValueChanged", function(self,value)
         UMPD.pinAlphaLong = value
     end)
     local slAlphaClamped = createSlider(UMPDO,"clampedAlpha",UMPD.pinAlphaLong,0,100,1,"Alpha when clamped to edge")
-    slAlphaClamped:SetPoint("TOPRIGHT", -16, -182)
+    slAlphaClamped:SetPoint("TOPRIGHT", -16, -192)
     slAlphaClamped:HookScript("OnValueChanged", function(self,value)
         UMPD.pinAlphaClamped = value
     end)
 
     -- Checkboxes
     local cbTrackPins = createCheckbox(UMPDO,UMPD.autoTrackPins,"atp","Automatically track new pins")
-    cbTrackPins:SetPoint("TOPLEFT", 8, -242)
+    cbTrackPins:SetPoint("TOPLEFT", 8, -252)
     cbTrackPins:HookScript("OnClick", function(self,value)
         UMPD.autoTrackPins = self:GetChecked()
     end)
@@ -132,7 +138,12 @@ function UMPD_Init()
     -- Notes
     local notes = UMPDO:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
     notes:SetText("|cffccccccSetting your 'Max Pin Distance' to 0 (zero) will result in unlimited draw distance for pins as your max distance.|r")
-    notes:SetPoint("BOTTOM",0,11) -- 16 -292
+    notes:SetPoint("TOP",0,-138)
+
+    -- About
+    local about = UMPDO:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+    about:SetText("|cffccccccCreated by |cff00ff96Xamchi|cffcccccc on Tarren Mill (EU)|r")
+    about:SetPoint("BOTTOM",0,11)
 
     -- Init Done
     _UMPD.init = true
