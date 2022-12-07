@@ -1,7 +1,7 @@
 _UMPD               = {}
 _UMPD.name          = "UMPD"
-_UMPD.addonName     = "Unlimited Map Pin Distance"
-_UMPD.version       = "1.1.9"
+_UMPD.addonName     = GetAddOnMetadata("UnlimitedMapPinDistance", "Title")
+_UMPD.version       = GetAddOnMetadata("UnlimitedMapPinDistance", "Version")
 _UMPD.init          = false
 
 local SuperTrackedFrame, C_Map, C_Navigation, C_Timer, C_SuperTrack = SuperTrackedFrame, C_Map, C_Navigation, C_Timer, C_SuperTrack
@@ -52,12 +52,17 @@ end
 local function UpdateTimeDistance(a)
     if UMPD.timeDistance and C_SuperTrack.IsSuperTrackingAnything() then
         local d = C_Navigation.GetDistance()
-        print("tick")
 
-        -- New Pin
+        -- New / Changed Pin
         if a then
+            -- Cancel Prev Timer if it exists
+            if _UMPD.distanceTimer then
+                _UMPD.distanceTimer:Cancel()
+            end
+
+            -- Reset & Start New Timer
             _UMPD.distanceLast = 0
-            UMPD.timeTimer = C_Timer.NewTicker(1, function() UpdateTimeDistance(false) end)
+            _UMPD.distanceTimer = C_Timer.NewTicker(1, function() UpdateTimeDistance(false) end)
         end
 
         -- Hide if Clamped
@@ -85,12 +90,12 @@ local function UpdateTimeDistance(a)
         end
         _UMPD.distanceLast = d
     else
+        if _UMPD.distanceTimer then
+            _UMPD.distanceTimer:Cancel()
+        end
         _UMPD.distanceLast = 0
         SuperTrackedFrame.Time:SetText("??:??")
         SuperTrackedFrame.Time:SetShown(false)
-        if UMPD.timeTimer then
-            UMPD.timeTimer:Cancel()
-        end
     end
 end
 
@@ -161,7 +166,7 @@ SlashCmdList["UMPD"] = function(msg)
     end
 end
 
--- Auto Track new Pins
+-- Event Handling
 local f = CreateFrame("Frame")
 f:SetScript("OnEvent", function(self, event, ...)
     if event == "PLAYER_LOGIN" and _UMPD.init == false then
@@ -174,9 +179,6 @@ f:SetScript("OnEvent", function(self, event, ...)
                 end
             end)
         elseif event == "SUPER_TRACKING_CHANGED" then
-            if UMPD.timeTimer then
-                UMPD.timeTimer:Cancel()
-            end
             UpdateTimeDistance(true)
         end
     end

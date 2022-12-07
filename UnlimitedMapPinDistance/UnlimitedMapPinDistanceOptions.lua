@@ -135,6 +135,11 @@ function UMPD_Init()
     cbTrackPins:HookScript("OnClick", function(self,value)
         UMPD.autoTrackPins = self:GetChecked()
     end)
+    local cbShowTime = createCheckbox(UMPDO,UMPD.timeDistance,"st","Show estimated time to arrive")
+    cbShowTime:SetPoint("TOPLEFT", 232, -252)
+    cbShowTime:HookScript("OnClick", function(self,value)
+        UMPD.timeDistance = self:GetChecked()
+    end)
 
     -- Notes
     local notes = UMPDO:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
