@@ -1,8 +1,10 @@
 _UMPD               = {}
 _UMPD.name          = "UMPD"
 _UMPD.addonName     = "Unlimited Map Pin Distance"
-_UMPD.version       = "1.1.9"
+_UMPD.version       = "1.2.0"
 _UMPD.init          = false
+
+local SuperTrackedFrame, C_Map, C_Navigation, C_Timer, C_SuperTrack = SuperTrackedFrame, C_Map, C_Navigation, C_Timer, C_SuperTrack
 
 do
     local dAlpha = SuperTrackedFrame.GetTargetAlphaBaseValue;
@@ -20,8 +22,14 @@ do
             return 0
         end
     end
+
+    -- Time to reach Pin
+    SuperTrackedFrame.Time = SuperTrackedFrame:CreateFontString(nil, "BACKGROUND", "GameFontNormal")
+    SuperTrackedFrame.Time:SetSize(0, 1)
+    SuperTrackedFrame.Time:SetPoint("TOP", SuperTrackedFrame.DistanceText, "BOTTOM", 0, 0)
 end
 
+-- Find Zone in command
 local function findZone(z,s)
     for i=0,2000 do
         if C_Map.GetMapInfo(i) then
@@ -40,6 +48,45 @@ local function findZone(z,s)
     return 0
 end
 
+-- Time to reach Pin
+local function UpdateTimeDistance(a)
+    if a and C_SuperTrack.IsSuperTrackingAnything() then
+        local d = C_Navigation.GetDistance()
+
+        -- Hide if Clamped
+        if SuperTrackedFrame.isClamped then
+            SuperTrackedFrame.Time:SetShown(false)
+        end
+
+        -- Calculate
+        if _UMPD.distanceLast > 0 then
+            local s = (_UMPD.distanceLast - d)
+            if s > 0 then
+                local t = d / s
+                if t > 0 then
+                    SuperTrackedFrame.Time:SetText(TIMER_MINUTES_DISPLAY:format(floor(t / 60), floor(t % 60)))
+                    SuperTrackedFrame.Time:SetShown(true)
+                else
+                    SuperTrackedFrame.Time:SetShown(false)
+                end
+            else
+                SuperTrackedFrame.Time:SetShown(false)
+            end
+        end
+        _UMPD.distanceLast = d
+
+        -- Re-run command every second
+        C_Timer.After(1, function()
+            UpdateTimeDistance(UMPD.timeDistance)
+        end)
+    else
+        _UMPD.distanceLast = 0
+        SuperTrackedFrame.Time:SetText("")
+        SuperTrackedFrame.Time:SetShown(false)
+    end
+end
+
+-- Slash
 SLASH_UMPD1 = "/uway";
 if not IsAddOnLoaded("SlashPin") then
     SLASH_UMPD2 = "/pin";
@@ -109,12 +156,17 @@ f:SetScript("OnEvent", function(self, event, ...)
     if event == "PLAYER_LOGIN" and _UMPD.init == false then
         UMPD_Init()
     elseif _UMPD.init == true then
-        if event == "USER_WAYPOINT_UPDATED" and UMPD.autoTrackPins == true and C_Map.HasUserWaypoint() == true then
+        if event == "USER_WAYPOINT_UPDATED" and C_Map.HasUserWaypoint() == true then
             C_Timer.After(0, function()
-                C_SuperTrack.SetSuperTrackedUserWaypoint(true)
+                _UMPD.distanceLast = 0
+                if UMPD.autoTrackPins == true then
+                    C_SuperTrack.SetSuperTrackedUserWaypoint(true)
+                end
+                UpdateTimeDistance(UMPD.timeDistance)
             end)
         end
     end
 end)
 f:RegisterEvent("USER_WAYPOINT_UPDATED")
+f:RegisterEvent("SUPER_TRACKING_CHANGED")
 f:RegisterEvent("PLAYER_LOGIN")

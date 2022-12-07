@@ -73,6 +73,7 @@ function UMPD_Init()
     UMPD.pinAlphaLong = UMPD.pinAlphaLong or 60
     UMPD.pinAlphaShort = UMPD.pinAlphaShort or 100
     UMPD.pinAlphaClamped = UMPD.pinAlphaClamped or 100
+    UMPD.timeDistance = UMPD.timeDistance or true
 
     -- Frame
     UMPDO = CreateFrame("Frame", nil, UIParent)
