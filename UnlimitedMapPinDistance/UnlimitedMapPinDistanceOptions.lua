@@ -66,14 +66,20 @@ end
 -- Init
 function UMPD_Init()
     if not UMPD then UMPD = {} end
-    UMPD.autoTrackPins = UMPD.autoTrackPins or true
     UMPD.minDistance = UMPD.minDistance or 70
     UMPD.fadeDistance = UMPD.fadeDistance or 113
     UMPD.maxDistance = UMPD.maxDistance or 0
     UMPD.pinAlphaLong = UMPD.pinAlphaLong or 60
     UMPD.pinAlphaShort = UMPD.pinAlphaShort or 100
     UMPD.pinAlphaClamped = UMPD.pinAlphaClamped or 100
-    UMPD.timeDistance = UMPD.timeDistance or true
+
+    if UMPD.autoTrackPins == nil then
+        UMPD.autoTrackPins = true
+    end
+
+    if UMPD.timeDistance == nil then
+        UMPD.timeDistance = true
+    end
 
     -- Frame
     UMPDO = CreateFrame("Frame", nil, UIParent)
