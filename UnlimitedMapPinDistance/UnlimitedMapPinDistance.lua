@@ -1,7 +1,7 @@
 _UMPD               = {}
 _UMPD.name          = "UMPD"
-_UMPD.addonName     = GetAddOnMetadata("UnlimitedMapPinDistance", "Title")
-_UMPD.version       = GetAddOnMetadata("UnlimitedMapPinDistance", "Version")
+_UMPD.addonName     = C_AddOns.GetAddOnMetadata("UnlimitedMapPinDistance", "Title")
+_UMPD.version       = C_AddOns.GetAddOnMetadata("UnlimitedMapPinDistance", "Version")
 _UMPD.init          = false
 
 local SuperTrackedFrame, C_Map, C_Navigation, C_Timer, C_SuperTrack = SuperTrackedFrame, C_Map, C_Navigation, C_Timer, C_SuperTrack
@@ -114,11 +114,11 @@ end
 -- Slash
 SLASH_UMPD1 = "/uway"
 
-if not IsAddOnLoaded("SlashPin") then
+if not C_AddOns.IsAddOnLoaded("SlashPin") then
     SLASH_UMPD2 = "/pin"
 end
 
-if not IsAddOnLoaded("TomTom") then
+if not C_AddOns.IsAddOnLoaded("TomTom") then
     SLASH_UMPD3 = "/way"
 end
 
