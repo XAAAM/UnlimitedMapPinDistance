@@ -92,7 +92,10 @@ function UMPD_Init()
     -- Frame
     UMPDO = CreateFrame("Frame", nil, UIParent)
     UMPDO.name = _UMPD.name
-    InterfaceOptions_AddCategory(UMPDO, _UMPD.addonName);
+    local category, layout = Settings.RegisterCanvasLayoutCategory(UMPDO, _UMPD.addonName, _UMPD.addonName)
+    category.ID = UMPDO.name
+    Settings.RegisterAddOnCategory(category)
+
 
     -- Title
     local title = UMPDO:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
@@ -184,8 +187,7 @@ end
 SlashCmdList.UMPDO = function(msg)
 	msg = msg:lower()
 	if not InCombatLockdown() then
-		InterfaceOptionsFrame_OpenToCategory(UMPDO)
-        InterfaceOptionsFrame_OpenToCategory(UMPDO)
+        Settings.OpenToCategory(UMPDO)
 	else
 		DEFAULT_CHAT_FRAME:AddMessage(format("%s | Can't modify interface options in combat", _UMPD.name))
 	end
