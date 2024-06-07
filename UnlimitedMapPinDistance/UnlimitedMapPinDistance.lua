@@ -55,7 +55,7 @@ end
 
 -- Find Zone in command
 local function findZone(z,s)
-    for i=0,2000 do
+    for i=0,4000 do
         if C_Map.GetMapInfo(i) then
             local m = C_Map.GetMapInfo(i)
             if string.lower(m.name) == z then
@@ -179,19 +179,34 @@ SlashCmdList["UMPD"] = function(msg)
 end
 
 -- Event Handling
+function _UMPD:USER_WAYPOINT_UPDATED()
+    if C_Map.HasUserWaypoint() == true then
+        C_Timer.After(0, function()
+            if UMPD.autoTrackPins == true then
+                C_SuperTrack.SetSuperTrackedUserWaypoint(true)
+            end
+        end)
+    end
+end
+
+function _UMPD:SUPER_TRACKING_CHANGED()
+    if C_SuperTrack.IsSuperTrackingQuest() then
+        C_SuperTrack.SetSuperTrackedUserWaypoint(false)
+    end
+    if C_SuperTrack.IsSuperTrackingAnything() then
+        UpdateTimeDistance(true)
+    end
+end
+
 local f = CreateFrame("Frame")
 f:SetScript("OnEvent", function(self, event, ...)
     if event == "PLAYER_LOGIN" and _UMPD.init == false then
         UMPD_Init()
     elseif _UMPD.init == true then
-        if event == "USER_WAYPOINT_UPDATED" and C_Map.HasUserWaypoint() == true then
-            C_Timer.After(0, function()
-                if UMPD.autoTrackPins == true then
-                    C_SuperTrack.SetSuperTrackedUserWaypoint(true)
-                end
-            end)
+        if event == "USER_WAYPOINT_UPDATED" then
+            _UMPD:USER_WAYPOINT_UPDATED()
         elseif event == "SUPER_TRACKING_CHANGED" then
-            UpdateTimeDistance(true)
+            _UMPD:SUPER_TRACKING_CHANGED()
         end
     end
 end)

@@ -178,6 +178,7 @@ function UMPD_Init()
     -- Init Done
     _UMPD.init = true
     UMPD_Init = nil
+    _UMPD:USER_WAYPOINT_UPDATED()
 end
 
 -- Slash command to open options
