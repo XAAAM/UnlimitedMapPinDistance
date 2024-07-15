@@ -1,7 +1,9 @@
+local GetAddOnMetadata = (C_AddOns and C_AddOns.GetAddOnMetadata) or GetAddOnMetadata
+
 _UMPD               = {}
 _UMPD.name          = "UMPD"
-_UMPD.addonName     = C_AddOns.GetAddOnMetadata("UnlimitedMapPinDistance", "Title")
-_UMPD.version       = C_AddOns.GetAddOnMetadata("UnlimitedMapPinDistance", "Version")
+_UMPD.addonName     = GetAddOnMetadata("UnlimitedMapPinDistance", "Title")
+_UMPD.version       = GetAddOnMetadata("UnlimitedMapPinDistance", "Version")
 _UMPD.init          = false
 
 local SuperTrackedFrame, C_Map, C_Navigation, C_Timer, C_SuperTrack = SuperTrackedFrame, C_Map, C_Navigation, C_Timer, C_SuperTrack
