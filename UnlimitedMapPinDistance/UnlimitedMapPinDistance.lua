@@ -13,16 +13,19 @@ do
     SuperTrackedFrame.Time:SetSize(0, 1)
     SuperTrackedFrame.Time:SetPoint("TOP", SuperTrackedFrame.DistanceText, "BOTTOM", 0, 0)
 
+    --
+    local function getBlizzNavEnabled()
+        if GetCVar('showInGameNavigation') == '1' then
+            return true
+        end
+        return false
+    end
+
     -- Override default SuperTrackedFrame:GetTargetAlphaBaseValue()
     function SuperTrackedFrame:GetTargetAlphaBaseValue()
-        -- Check if Navigation is Enabled
-        if C_Navigation.GetTargetState() == 0 then
-            return 0
-        end
-
         -- Update Alpha on Pin
         local d = C_Navigation.GetDistance()
-        if (d >= UMPD.minDistance and d <= UMPD.maxDistance) or (d >= UMPD.minDistance and UMPD.maxDistance == 0) then
+        if (getBlizzNavEnabled()) and ((d >= UMPD.minDistance and d <= UMPD.maxDistance) or (d >= UMPD.minDistance and UMPD.maxDistance == 0)) then
             if SuperTrackedFrame.isClamped then
                 return UMPD.pinAlphaClamped/100
             elseif d > UMPD.fadeDistance then
