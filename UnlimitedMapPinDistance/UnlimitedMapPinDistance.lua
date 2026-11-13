@@ -177,7 +177,7 @@ SlashCmdList["UMPD"] = function(msg)
             c.t = string.match(c.z, "%#([0-9]+)")
             
             if c.t then
-                u = c.t
+                u = tonumber(c.t)
             else
                 c.s = string.match(c.z, ":([a-z%s'`]+)")
                 c.z = string.match(c.z, "([a-z%s'`]+)")

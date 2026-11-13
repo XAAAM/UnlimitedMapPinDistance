@@ -32,10 +32,11 @@ local createSlider = function(parent,name,option,minVal,maxVal,step,desc)
     editbox:SetText(slider:GetValue())
     editbox:SetCursorPosition(0)
 
-    slider:SetScript("OnValueChanged", function(self,v)
-        self.editbox:SetText(roundVal(v))
+    slider:SetScript("OnValueChanged", function(self,value)
+        self.editbox:SetText(roundVal(value))
     end)
-    editbox:SetScript("OnTextChanged", function(self)
+    editbox:SetScript("OnTextChanged", function(self,userInput)
+        if not userInput then return end
         local v = self:GetText()
         if tonumber(v) then
             self:GetParent():SetValue(v)
@@ -93,6 +94,11 @@ function UMPD_Init()
         UMPD.fadeMouseOver = true
     end
 
+    if UMPD.blizzEnabled == nil then
+        UMPD.blizzEnabled = true
+        C_CVar.SetCVar("showInGameNavigation", 1)
+    end
+
     -- Frame
     UMPDO = CreateFrame("Frame", nil, nil, UMPD.name)
     UMPDO.name = _UMPD.name
@@ -101,11 +107,9 @@ function UMPD_Init()
     function UMPDO.OnDefault() end
     function UMPDO.OnRefresh() end
 
-    local category, layout = Settings.RegisterCanvasLayoutCategory(UMPDO, _UMPD.addonName);
-    layout:AddAnchorPoint("TOPLEFT", 0, 0);
-    layout:AddAnchorPoint("BOTTOMRIGHT", 0, 0);
-    category.ID = UMPDO.name
+    local category = Settings.RegisterCanvasLayoutCategory(UMPDO, _UMPD.addonName);
     Settings.RegisterAddOnCategory(category)
+    UMPDO.category = category
     
     -- Title
     local title = UMPDO:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
@@ -150,36 +154,41 @@ function UMPD_Init()
     slAlphaLong:HookScript("OnValueChanged", function(self,value)
         UMPD.pinAlphaLong = value
     end)
-    local slAlphaClamped = createSlider(UMPDO,"clampedAlpha",UMPD.pinAlphaLong,0,100,1,"Alpha when clamped to edge")
+    local slAlphaClamped = createSlider(UMPDO,"clampedAlpha",UMPD.pinAlphaClamped,0,100,1,"Alpha when clamped to edge")
     slAlphaClamped:SetPoint("TOPRIGHT", -16, -192)
     slAlphaClamped:HookScript("OnValueChanged", function(self,value)
         UMPD.pinAlphaClamped = value
     end)
 
     -- Checkboxes
-    local cbTrackPins = createCheckbox(UMPDO,UMPD.autoTrackPins,"atp","Automatically track new pins")
+    local cbEnableNavigation = createCheckbox(UMPDO,GetCVar("showInGameNavigation") == "1","enableNavigation","Show in-game navigation")
+    cbEnableNavigation:SetPoint("TOPLEFT", 8, -32)
+    cbEnableNavigation:HookScript("OnClick", function(self)
+        C_CVar.SetCVar("showInGameNavigation", self:GetChecked() and "1" or "0")
+    end)
+    local cbTrackPins = createCheckbox(UMPDO, UMPD.autoTrackPins, "trackPins", "Automatically track new pins")
     cbTrackPins:SetPoint("TOPLEFT", 8, -252)
-    cbTrackPins:HookScript("OnClick", function(self,value)
+    cbTrackPins:HookScript("OnClick", function(self)
         UMPD.autoTrackPins = self:GetChecked()
     end)
-    local cbShowTime = createCheckbox(UMPDO,UMPD.timeDistance,"st","Show estimated time to arrive")
+    local cbShowTime = createCheckbox(UMPDO, UMPD.timeDistance, "showTime", "Show estimated time to arrive")
     cbShowTime:SetPoint("TOPLEFT", 8, -282)
-    cbShowTime:HookScript("OnClick", function(self,value)
+    cbShowTime:HookScript("OnClick", function(self)
         UMPD.timeDistance = self:GetChecked()
     end)
-    local cbUseMeters = createCheckbox(UMPDO,UMPD.useMeters,"st","Use meters instead of yards")
+    local cbUseMeters = createCheckbox(UMPDO, UMPD.useMeters, "useMeters", "Use meters instead of yards")
     cbUseMeters:SetPoint("TOPLEFT", 8, -312)
-    cbUseMeters:HookScript("OnClick", function(self,value)
+    cbUseMeters:HookScript("OnClick", function(self)
         UMPD.useMeters = self:GetChecked()
     end)
-    local cbShortNumbers = createCheckbox(UMPDO,UMPD.shortNumbers,"st","Shorten numbers above 1000")
+    local cbShortNumbers = createCheckbox(UMPDO, UMPD.shortNumbers, "shortNumbers", "Shorten numbers above 1000")
     cbShortNumbers:SetPoint("TOPLEFT", 8, -342)
-    cbShortNumbers:HookScript("OnClick", function(self,value)
+    cbShortNumbers:HookScript("OnClick", function(self)
         UMPD.shortNumbers = self:GetChecked()
     end)
-    local cbFadeMouseOver = createCheckbox(UMPDO,UMPD.fadeMouseOver,"st","Fade pin when mousing over it")
+    local cbFadeMouseOver = createCheckbox(UMPDO, UMPD.fadeMouseOver, "fadeMouseOver", "Fade pin when mousing over it")
     cbFadeMouseOver:SetPoint("TOPLEFT", 8, -372)
-    cbFadeMouseOver:HookScript("OnClick", function(self,value)
+    cbFadeMouseOver:HookScript("OnClick", function(self)
         UMPD.fadeMouseOver = self:GetChecked()
     end)
 
@@ -189,9 +198,12 @@ function UMPD_Init()
     notes:SetPoint("TOP",0,-138)
 
     -- About
-    local about = UMPDO:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-    about:SetText("|cffccccccCreated by |cff00ff96Xamchi|cffcccccc on Tarren Mill (EU)|r")
-    about:SetPoint("BOTTOM",0,11)
+    local aboutRetail = UMPDO:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+    aboutRetail:SetText("|cffccccccCreated by |cff00ff96Xamchi|cffcccccc on Tarren Mill (EU)|r")
+    aboutRetail:SetPoint("BOTTOM",0,11)
+    local aboutForever = UMPDO:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+    aboutForever:SetText("|cfff48cbaXam Pew|cffcccccc on PVE (EU)|r")
+    aboutForever:SetPoint("BOTTOM",0,0)
 
     -- Init Done
     _UMPD.init = true
@@ -199,13 +211,15 @@ function UMPD_Init()
     _UMPD:USER_WAYPOINT_UPDATED()
 end
 
--- Slash command to open options
-SlashCmdList.UMPDO = function(msg)
-	msg = msg:lower()
-	if not InCombatLockdown() then
-        Settings.OpenToCategory(UMPDO.name)
-	else
-		DEFAULT_CHAT_FRAME:AddMessage(format("%s | Can't modify interface options in combat", _UMPD.name))
-	end
+-- Open Settings
+function OpenSettings()
+    if not InCombatLockdown() then
+        Settings.OpenToCategory(UMPDO.category:GetID())
+    else
+        DEFAULT_CHAT_FRAME:AddMessage(format("%s | Can't modify interface options in combat", _UMPD.name))
+    end
 end
+
+-- Slash command to open options
 SLASH_UMPDO1 = "/umpd"
+SlashCmdList.UMPDO = OpenSettings
