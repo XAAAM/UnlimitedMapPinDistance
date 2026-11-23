@@ -1,12 +1,13 @@
 local GetAddOnMetadata = (C_AddOns and C_AddOns.GetAddOnMetadata) or GetAddOnMetadata
 local SuperTrackedFrame, C_Map, C_Navigation, C_Timer, C_SuperTrack = SuperTrackedFrame, C_Map, C_Navigation, C_Timer, C_SuperTrack
+local showInGameNavigation = GetCVar('showInGameNavigation')
 
 _UMPD               = {}
 _UMPD.name          = "UMPD"
 _UMPD.addonName     = GetAddOnMetadata("UnlimitedMapPinDistance", "Title")
 _UMPD.version       = GetAddOnMetadata("UnlimitedMapPinDistance", "Version")
 _UMPD.init          = false
-_UMPD.blizzEnabled  = GetCVar('showInGameNavigation') or false
+_UMPD.blizzEnabled  = showInGameNavigation == "1" or showInGameNavigation == nil
 
 do
     -- Time to reach Pin
@@ -221,7 +222,8 @@ function _UMPD:SUPER_TRACKING_CHANGED()
 end
 
 function _UMPD:CVAR_UPDATE()
-    if GetCVar('showInGameNavigation') == "1" then
+    local showInGameNavigation = GetCVar('showInGameNavigation')
+    if showInGameNavigation == "1" or showInGameNavigation == nil then
         _UMPD.blizzEnabled = true
     else
         _UMPD.blizzEnabled = false
