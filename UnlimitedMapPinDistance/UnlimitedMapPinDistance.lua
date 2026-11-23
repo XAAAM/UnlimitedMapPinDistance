@@ -19,7 +19,7 @@ do
     function SuperTrackedFrame:GetTargetAlphaBaseValue()
         -- Update Alpha on Pin
         local d = C_Navigation.GetDistance()
-        if (_UMPD.blizzEnabled) and ((d >= UMPD.minDistance and d <= UMPD.maxDistance) or (d >= UMPD.minDistance and UMPD.maxDistance == 0)) then
+        if (_UMPD.blizzEnabled and UMPD.blizzEnabled) and ((d >= UMPD.minDistance and d <= UMPD.maxDistance) or (d >= UMPD.minDistance and UMPD.maxDistance == 0)) then
             if SuperTrackedFrame.isClamped then
                 return UMPD.pinAlphaClamped/100
             elseif d > UMPD.fadeDistance then

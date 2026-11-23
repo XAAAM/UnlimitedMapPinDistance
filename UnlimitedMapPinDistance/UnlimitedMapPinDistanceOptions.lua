@@ -161,9 +161,10 @@ function UMPD_Init()
     end)
 
     -- Checkboxes
-    local cbEnableNavigation = createCheckbox(UMPDO,GetCVar("showInGameNavigation") == "1","enableNavigation","Show in-game navigation")
+    local cbEnableNavigation = createCheckbox(UMPDO, UMPD.blizzEnabled, "enableNavigation", "Show in-game navigation")
     cbEnableNavigation:SetPoint("TOPLEFT", 8, -32)
     cbEnableNavigation:HookScript("OnClick", function(self)
+        UMPD.blizzEnabled = self:GetChecked()
         C_CVar.SetCVar("showInGameNavigation", self:GetChecked() and "1" or "0")
     end)
     local cbTrackPins = createCheckbox(UMPDO, UMPD.autoTrackPins, "trackPins", "Automatically track new pins")
